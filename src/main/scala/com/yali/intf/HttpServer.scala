@@ -9,9 +9,9 @@ import akka.http.scaladsl.server.Directives.{as, complete, entity, extractUri, g
 import akka.http.scaladsl.server.directives.Credentials
 import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import akka.stream.ActorMaterializer
-import com.yali.domain.service._
 import com.yali.domain._
 import com.yali.domain.payload._
+import com.yali.domain.service._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
 import io.circe.java8.time._
@@ -72,45 +72,30 @@ class HttpServer(implicit val system: ActorSystem,
           } ~ delete {
             complete(countryService.delete(countryId))
           }
-        } ~ path("languages") {
-          complete("Done")
         } ~ pathEnd {
-          get{
+          get {
             complete(countryService.findAll())
           } ~ post {
             entity(as[CountryRequest]) { req => complete(countryService.create(req)) }
           }
-        }
-      } ~ pathPrefix("languages") {
-        path(JavaUUID) { languageId =>
-          get {
-            complete(languageService.find(languageId))
-          } ~ put {
-            entity(as[LanguageRequest]) { req => complete(languageService.update(languageId, req)) }
-          } ~ delete {
-            complete(languageService.delete(languageId))
-          }
-        } ~ pathEnd {
-          post {
-            entity(as[LanguageRequest]) { req => complete(languageService.create(req)) }
-          }
-        }
-      } ~ pathPrefix("states") {
-        path(JavaUUID) { stateId =>
-          get {
-            complete(countryStateService.find(stateId))
-          } ~ put {
-            entity(as[CountryStateRequest]) { req => complete(countryStateService.update(stateId, req)) }
-          } ~ delete {
-            complete(countryStateService.delete(stateId))
-          }
-        } ~ pathEnd {
-          post {
-            entity(as[CountryStateRequest]) { req => complete(countryStateService.create(req)) }
+        } ~ pathPrefix(JavaUUID / "languages") { countryId =>
+          path(JavaUUID) { languageId =>
+            get {
+              complete(languageService.find(countryId, languageId))
+            } ~ put {
+              entity(as[LanguageRequest]) { req => complete(languageService.update(countryId, languageId, req)) }
+            } ~ delete {
+              complete(languageService.delete(countryId, languageId))
+            }
+          } ~ pathEnd {
+            get {
+              complete(languageService.findAllByCountry(countryId))
+            } ~ post {
+              entity(as[LanguageRequest]) { req => complete(languageService.create(countryId, req)) }
+            }
           }
         }
       }
-
     }
 
 

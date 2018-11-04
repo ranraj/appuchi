@@ -57,6 +57,11 @@ final case class LanguageResponse(id: UUID,
                                   country: Option[CountryResponse]
                                  )
 
+final case class LanguageResponseLazy(id: UUID,
+                                  name: String,
+                                  locale: String,
+                                 )
+
 final case class CountryStateRequest(name: String,
                                  country_id: UUID,
                                 )

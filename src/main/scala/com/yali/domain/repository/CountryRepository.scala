@@ -54,30 +54,40 @@ class LanguageRepository extends RepositoryHelper {
              on ${language.countryId} =${country.id} where ${language.locale} = $locale """
       .map(Language(language.resultName)).list.apply()
 
-  def find(id: ID)(implicit session: DBSession): Option[Language] =
+  def findAllByCountry(countryId: ID)(implicit session: DBSession): List[Language] =
+    sql"""select ${language.result.*} from ${Language.as(language)} left join ${Country.as(country)}
+             on ${language.countryId} =${country.id} where ${language.countryId} = $countryId """
+      .map(Language(language.resultName)).list.apply()
+
+  def find(countryId: ID,languageId: ID)(implicit session: DBSession): Option[Language] =
     sql"""select ${language.result.*},${country.result.*} from ${Language.as(language)} left join ${Country.as(country)}
-             on ${language.countryId} =${country.id} where ${language.id} = $id """
+             on ${language.countryId} =${country.id} where ${language.id} = $languageId and ${country.id} = $countryId"""
       .map(Language(language.resultName, country.resultName)).single.apply()
 
-  def create(entity: Language)(implicit session: DBSession): Language = {
+  def find(languageId: ID)(implicit session: DBSession): Option[Language] =
+    sql"""select ${language.result.*},${country.result.*} from ${Language.as(language)} left join ${Country.as(country)}
+             on ${language.countryId} =${country.id} where ${language.id} = $languageId """
+      .map(Language(language.resultName, country.resultName)).single.apply()
+
+  def create(countryId: ID,entity: Language)(implicit session: DBSession): Language = {
     sql"""insert into ${Language.table} (id, name, locale, country_id) values (
                     ${entity.id},
                     ${entity.name},
                     ${entity.locale},
-                    ${entity.countryId})""".update.apply()
-    mustExist(find(entity.id))
+                    ${countryId})""".update.apply()
+    mustExist(find(countryId,entity.id))
   }
 
-  def update(entity: Language)(implicit session: DBSession): Language = {
+  def update(countryId: ID, entity: Language)(implicit session: DBSession): Language = {
     sql"""update ${Language.table} set
               name = ${entity.name},
               locale=${entity.locale},
-              country_id=${entity.countryId}""".update.apply()
-    mustExist(find(entity.id))
+              country_id=${entity.countryId} where ${language.countryId} = $countryId""".update.apply()
+    mustExist(find(countryId,entity.id))
   }
 
-  def delete(id: ID)(implicit session: DBSession): Boolean =
-    sql"delete from ${Language.table} where id = $id".update().apply() > 0
+  def delete(countryId: ID, languageId: ID)(implicit session: DBSession): Boolean =
+    sql"delete from ${Language.table} where id = $languageId and ${language.countryId} = $countryId".update().apply() > 0
 }
 
 class CountryStateRepository extends RepositoryHelper {

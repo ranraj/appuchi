@@ -121,37 +121,39 @@ class LanguageService(implicit languageRepo: LanguageRepository) {
     ).mapN(LanguageRequest)
   }
 
-  def create(request: LanguageRequest): LanguageResponse = {
+  def create(countryId: ID,request: LanguageRequest): LanguageResponse = {
     validateRequest(request) match {
       case Valid(value) =>
         toLanguageResponse(DB localTx { implicit session =>
-          languageRepo.create(createCountry(value))
+          languageRepo.create(countryId,create(value))
         })
       case Invalid(errors) => throw new ValidationFailedException(errors.toList)
     }
   }
 
-  def update(id: ID, request: LanguageRequest): LanguageResponse = {
+  def update(countryId: ID,languageId: ID, request: LanguageRequest): LanguageResponse = {
     validateRequest(request) match {
       case Valid(value) =>
         DB localTx {
-          implicit session => toLanguageResponse(languageRepo.update(toLanguage(id,value)))
+          implicit session => toLanguageResponse(languageRepo.update(countryId,toLanguage(languageId,value)))
         }
       case Invalid(errors) => throw new ValidationFailedException(errors.toList)
     }
   }
 
-  def delete(id: ID): Boolean = DB localTx {
-    implicit session => languageRepo.delete(id)
+  def delete(countryId: ID, languageId: ID): Boolean = DB localTx {
+    implicit session => languageRepo.delete(countryId,languageId)
   }
+  def find(countryId: ID,languageId: ID): Option[LanguageResponse] =
+    DB readOnly { implicit session => languageRepo.find(countryId,languageId).map(toLanguageResponse(_)) }
 
-  def find(countryId: ID): Option[LanguageResponse] =
-    DB readOnly { implicit session => languageRepo.find(countryId).map(toLanguageResponse(_)) }
+  def find(languageId: ID): Option[LanguageResponse] =
+    DB readOnly { implicit session => languageRepo.find(languageId).map(toLanguageResponse(_)) }
 
-  def findAll(code: String): List[LanguageResponse] =
-    DB readOnly { implicit session => languageRepo.findAll(code).map(toLanguageResponse(_)) }
+  def findAllByCountry(countryId: ID): List[LanguageResponseLazy] =
+    DB readOnly { implicit session => languageRepo.findAllByCountry(countryId).map(toLanguageResponseLazy(_)) }
 
-  private[this] def createCountry(req: LanguageRequest): Language = new Language(
+  private[this] def create(req: LanguageRequest): Language = new Language(
     name = req.name,
     locale = req.locale,
     countryId = Some(req.country_id)
@@ -175,6 +177,12 @@ object LanguageParser{
       name = language.name,
       locale = language.name,
       country = language.country.map(toCountryResponse(_))
+    )
+  def toLanguageResponseLazy(language: Language) =
+    LanguageResponseLazy(
+      id = language.id,
+      name = language.name,
+      locale = language.name,
     )
 }
 
