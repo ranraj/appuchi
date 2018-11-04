@@ -19,7 +19,7 @@ class CountryRepository extends RepositoryHelper {
       .map(Country(country.resultName)).single.apply()
 
   def create(entity: Country)(implicit session: DBSession): Country = {
-    sql"""insert into ${Country.as(country)} (id, name, code, currency, dollar_rate, description) values (
+    sql"""insert into ${Country.table} (id, name, code, currency, dollar_rate, description) values (
                     ${entity.id},
                     ${entity.name},
                     ${entity.code},
@@ -30,7 +30,7 @@ class CountryRepository extends RepositoryHelper {
   }
 
   def update(entity: Country)(implicit session: DBSession): Country = {
-    sql"""update ${Country.as(country)} set
+    sql"""update ${Country.table} set
               name = ${entity.name},
               code=${entity.code},
               currency=${entity.currency},
@@ -41,7 +41,7 @@ class CountryRepository extends RepositoryHelper {
   }
 
   def delete(countryId: ID)(implicit session: DBSession): Boolean =
-    sql"delete from ${Country.as(country)} where id = $countryId".update().apply() > 0
+    sql"delete from ${Country.table} where id = $countryId".update().apply() > 0
 }
 
 
@@ -60,7 +60,7 @@ class LanguageRepository extends RepositoryHelper {
       .map(Language(language.resultName, country.resultName)).single.apply()
 
   def create(entity: Language)(implicit session: DBSession): Language = {
-    sql"""insert into ${Language.as(language)} (id, name, locale, country_id) values (
+    sql"""insert into ${Language.table} (id, name, locale, country_id) values (
                     ${entity.id},
                     ${entity.name},
                     ${entity.locale},
@@ -69,7 +69,7 @@ class LanguageRepository extends RepositoryHelper {
   }
 
   def update(entity: Language)(implicit session: DBSession): Language = {
-    sql"""update ${Language.as(language)} set
+    sql"""update ${Language.table} set
               name = ${entity.name},
               locale=${entity.locale},
               country_id=${entity.countryId}""".update.apply()
@@ -77,7 +77,7 @@ class LanguageRepository extends RepositoryHelper {
   }
 
   def delete(id: ID)(implicit session: DBSession): Boolean =
-    sql"delete from ${Language.as(language)} where id = $id".update().apply() > 0
+    sql"delete from ${Language.table} where id = $id".update().apply() > 0
 }
 
 class CountryStateRepository extends RepositoryHelper {
@@ -95,7 +95,7 @@ class CountryStateRepository extends RepositoryHelper {
       .map(CountryState(countryState.resultName, country.resultName)).single.apply()
 
   def create(entity: CountryState)(implicit session: DBSession): CountryState = {
-    sql"""insert into ${CountryState.as(countryState)} (id, name, locale, country_id) values (
+    sql"""insert into ${CountryState.table} (id, name, locale, country_id) values (
                     ${entity.id},
                     ${entity.name},
                     ${entity.countryId})""".update.apply()
@@ -103,13 +103,13 @@ class CountryStateRepository extends RepositoryHelper {
   }
 
   def update(entity: CountryState)(implicit session: DBSession): CountryState = {
-    sql"""update ${CountryState.as(countryState)} set
+    sql"""update ${CountryState.table} set
               name = ${entity.name},
               country_id=${entity.countryId}""".update.apply()
     mustExist(find(entity.id))
   }
 
   def delete(id: ID)(implicit session: DBSession): Boolean =
-    sql"delete from ${CountryState.as(countryState)} where id = $id".update().apply() > 0
+    sql"delete from ${CountryState.table} where id = $id".update().apply() > 0
 }
 

@@ -50,7 +50,11 @@ class CountryService(implicit countryRepo: CountryRepository) {
   }
 
   def update(id: ID, request: CountryRequest): CountryResponse = DB localTx {
-    implicit session => toCountryResponse(countryRepo.update(toCountry(id,request)))
+    implicit session =>  validateRequest(request) match {
+      case Valid(value) =>
+        toCountryResponse(countryRepo.update(toCountry(id,value)))
+      case Invalid(errors) => throw new ValidationFailedException(errors.toList)
+    }
   }
 
   def delete(id: ID): Boolean = DB localTx {
@@ -127,8 +131,14 @@ class LanguageService(implicit languageRepo: LanguageRepository) {
     }
   }
 
-  def update(id: ID, request: LanguageRequest): LanguageResponse = DB localTx {
-    implicit session => toLanguageResponse(languageRepo.update(toLanguage(id,request)))
+  def update(id: ID, request: LanguageRequest): LanguageResponse = {
+    validateRequest(request) match {
+      case Valid(value) =>
+        DB localTx {
+          implicit session => toLanguageResponse(languageRepo.update(toLanguage(id,value)))
+        }
+      case Invalid(errors) => throw new ValidationFailedException(errors.toList)
+    }
   }
 
   def delete(id: ID): Boolean = DB localTx {
@@ -194,8 +204,14 @@ class CountryStateService(implicit repository: CountryStateRepository) {
     }
   }
 
-  def update(id: ID, request: CountryStateRequest): CountryStateResponse = DB localTx {
-    implicit session => toCountryStateResponse(repository.update(toCountryState(id,request)))
+  def update(id: ID, request: CountryStateRequest): CountryStateResponse = {
+    validateRequest(request) match {
+      case Valid(value) =>
+        DB localTx {
+          implicit session => toCountryStateResponse(repository.update(toCountryState(id,value)))
+        }
+      case Invalid(errors) => throw new ValidationFailedException(errors.toList)
+    }
   }
 
   def delete(id: ID): Boolean = DB localTx {
