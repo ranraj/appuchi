@@ -42,4 +42,5 @@ object Validator {
     }
 
     def success[A](value: A): ValidationResult[A] = value.validNel
+    def noneValidation[A](value: A): ValidationResult[A] = value.valid
 }

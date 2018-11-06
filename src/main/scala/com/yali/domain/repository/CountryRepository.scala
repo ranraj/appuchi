@@ -92,31 +92,31 @@ class LanguageRepository extends RepositoryHelper {
 
 class CountryStateRepository extends RepositoryHelper {
 
-  val (countryState, country) = (CountryState.syntax("language"), Country.syntax("country"))
+    val (countryState, country) = (CountryState.syntax("countryState"), Country.syntax("country"))
 
   def findAll(name: String)(implicit session: DBSession): List[CountryState] =
     sql"""select ${countryState.result.*},${country.result.*} from ${CountryState.as(countryState)} left join ${Country.as(country)}
              on ${countryState.countryId} =${country.id} where ${countryState.name} = $name """
       .map(CountryState(countryState.resultName)).list.apply()
 
-  def find(id: ID)(implicit session: DBSession): Option[CountryState] =
+  def find(countryId: ID, stateId: ID)(implicit session: DBSession): Option[CountryState] =
     sql"""select ${countryState.result.*},${country.result.*} from ${CountryState.as(countryState)} left join ${Country.as(country)}
-             on ${countryState.countryId} =${country.id} where ${countryState.id} = $id """
+             on ${countryState.countryId} = ${country.id} where ${countryState.id} = $stateId and ${country.id} = ${countryId}"""
       .map(CountryState(countryState.resultName, country.resultName)).single.apply()
 
   def create(entity: CountryState)(implicit session: DBSession): CountryState = {
-    sql"""insert into ${CountryState.table} (id, name, locale, country_id) values (
+    sql"""insert into ${CountryState.table} (id, name, country_id) values (
                     ${entity.id},
                     ${entity.name},
                     ${entity.countryId})""".update.apply()
-    mustExist(find(entity.id))
+    mustExist(find(entity.countryId,entity.id))
   }
 
   def update(entity: CountryState)(implicit session: DBSession): CountryState = {
     sql"""update ${CountryState.table} set
               name = ${entity.name},
               country_id=${entity.countryId}""".update.apply()
-    mustExist(find(entity.id))
+    mustExist(find(entity.countryId,entity.id))
   }
 
   def delete(id: ID)(implicit session: DBSession): Boolean =

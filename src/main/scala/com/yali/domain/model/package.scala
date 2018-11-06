@@ -12,14 +12,14 @@ package object model {
                     username: String,
                     email: String,
                     password: String,
-                    primaryAddress: Option[Address] = None,
+                    primaryAddress: Option[PersonAddress] = None,
                     primaryPhone: Option[String] = None,
                     primaryEmail: Option[String] = None,
                     createdAt: OffsetDateTime = OffsetDateTime.now,
                     modifiedAt: OffsetDateTime = OffsetDateTime.now
                    )
 
-  case class Address(street1: String,
+  case class PersonAddress(street1: String,
                      street2: Option[String],
                      city: String,
                      state: String,
@@ -99,18 +99,18 @@ package object model {
   case class CountryState(
                            id: UUID = UUID.randomUUID(),
                            name: String,
-                           countryId: Option[ID] = None,
+                           countryId: ID,
                            country: Option[Country] = None
                          )
 
   object CountryState extends SQLSyntaxSupport[CountryState] {
-    override val tableName = "app_country_language"
+    override val tableName = "app_country_state"
 
     def apply(state: ResultName[CountryState])(rs: WrappedResultSet): CountryState =
       new CountryState(
         id = UUID.fromString(rs.string(state.id)),
         name = rs.string(state.name),
-        countryId = rs.stringOpt(state.countryId).map(UUID.fromString(_))
+        countryId = UUID.fromString(rs.string(state.countryId))
       )
 
     def apply(state: ResultName[CountryState], c: ResultName[Country])(rs: WrappedResultSet): CountryState = {

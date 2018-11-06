@@ -22,12 +22,14 @@ object Boot extends App with StrictLogging {
     lazy implicit val taskRepo = new TaskRepository()
     lazy implicit val languageRepo = new LanguageRepository()
     lazy implicit val countryStateRepo = new CountryStateRepository()
+    lazy implicit val addressRepo = new AddressRepository()
 
     lazy implicit val taskService = new TaskService()
     lazy implicit val personService = new PersonService()
     lazy implicit val countryService= new CountryService()
     lazy implicit val languageService = new LanguageService()
     lazy implicit val countryStateService = new CountryStateService()
+    lazy implicit val addressService = new AddressService()
 
     val config = ConfigFactory.load()
     val dbConfig = config.getConfig("database")

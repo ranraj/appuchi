@@ -26,6 +26,7 @@ class HttpServer(implicit val system: ActorSystem,
                  implicit val countryService: CountryService,
                  implicit val languageService: LanguageService,
                  implicit val countryStateService: CountryStateService,
+                 implicit val addressService: AddressService,
                  implicit val jwtToken: JwtToken) extends TimeInstances {
 
   val log = Logging(system, this.getClass.getName)
@@ -94,10 +95,32 @@ class HttpServer(implicit val system: ActorSystem,
               entity(as[LanguageRequest]) { req => complete(languageService.create(countryId, req)) }
             }
           }
+        } ~ pathPrefix(JavaUUID / "states") { countryId =>
+          path(JavaUUID) { stateId =>
+            get {
+              complete(countryStateService.find(countryId, stateId))
+            } ~ put {
+              entity(as[CountryStateRequest]) { req => complete(countryStateService.update(stateId,req)) }
+            } ~ delete {
+              complete(countryStateService.delete(stateId))
+            }
+          } ~ pathEnd {
+//            get {
+//              //complete(countryStateService.findAllByCountry(countryId))
+//            } ~
+            post {
+              entity(as[CountryStateRequest]) { req => complete(countryStateService.create(req)) }
+            }
+          }
         }
       }
+    }  ~ pathPrefix("addresses") {
+        pathEnd {
+          post {
+            entity(as[AddressRequest]) { req => complete(addressService.create(req)) }
+          }
+        }
     }
-
 
   implicit def defaultExceptionHandler = ExceptionHandler {
     case notFound: NotFoundException =>

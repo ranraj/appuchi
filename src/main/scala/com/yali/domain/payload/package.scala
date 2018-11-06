@@ -3,6 +3,9 @@ package com.yali.domain.payload
 import java.time.OffsetDateTime
 import java.util.UUID
 
+import com.yali.domain.model.AddressTypeEnum.AddressTypeEnum
+import com.yali.domain.model.ID
+
 final case class ErrorResponse(statusCode: Int,
                                uri: String,
                                exceptionType: String,
@@ -63,7 +66,7 @@ final case class LanguageResponseLazy(id: UUID,
                                  )
 
 final case class CountryStateRequest(name: String,
-                                 country_id: UUID,
+                                 country_id: UUID
                                 )
 
 final case class CountryStateResponse(id: UUID,
@@ -71,3 +74,30 @@ final case class CountryStateResponse(id: UUID,
                                   country: Option[CountryResponse]
                                  )
 
+final case class AddressRequest(
+                                 line1: String,
+                                 line2: Option[String] = None,
+                                 landmark: Option[String] = None,
+                                 countryId: ID,
+                                 stateId: Option[ID] = None,
+                                 livingPeriod: Option[Int] = None,
+                                 latitude: Option[Double] = None,
+                                 longitude: Option[Double] = None,
+                                 zipCode: String,
+                                 addressType: String
+                               )
+final case class AddressResponse(
+                                 id : UUID,
+                                 line1: String,
+                                 line2: Option[String],
+                                 landmark: Option[String],
+                                 countryId: ID,
+                                 country: Option[CountryResponse] = None,
+                                 stateId: Option[ID],
+                                 state: Option[ CountryStateResponse] = None,
+                                 livingPeriod: Option[Int],
+                                 latitude: Option[Double],
+                                 longitude: Option[Double],
+                                 zipCode: String,
+                                 addressType: String
+                               )

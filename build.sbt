@@ -1,12 +1,21 @@
 lazy val akkaHttpVersion = "10.0.7"
 lazy val akkaVersion = "2.5.2"
 
+
 scalacOptions += "-Ypartial-unification"
 
 libraryDependencies ++= Seq(
 )
+addSbtPlugin("org.scalikejdbc" %% "scalikejdbc-mapper-generator" % "3.2.+")
 
-
+lazy val scalikeJDBCSettings = Seq(
+  libraryDependencies ++= Seq(
+    "org.postgresql" % "postgresql" % "42.1.1",
+    "org.scalikejdbc" %% "scalikejdbc" % "3.2.0",
+    "org.scalikejdbc" %% "scalikejdbc-config" % "3.2.0",
+    "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.6.0-scalikejdbc-3.2"
+  )
+)
 lazy val root = (project in file(".")).
         settings(
             inThisBuild(List(
@@ -40,7 +49,13 @@ lazy val root = (project in file(".")).
                 "de.heikoseeberger" % "akka-http-circe_2.12" % "1.18.1",
                 "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test,
                 "org.scalatest" %% "scalatest" % "3.0.3" % Test,
+                "org.scalikejdbc" %% "scalikejdbc-test" % "3.1.0" % Test,
                 "org.mockito" % "mockito-all" % "1.10.19" % "test"
             )
-        )
+        ).settings(scalikeJDBCSettings)
+
+enablePlugins(ScalikejdbcPlugin)
+
+
+
 

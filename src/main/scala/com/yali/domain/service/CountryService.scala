@@ -226,15 +226,19 @@ class CountryStateService(implicit repository: CountryStateRepository) {
     implicit session => repository.delete(id)
   }
 
-  def find(countryId: ID): Option[CountryStateResponse] =
-    DB readOnly { implicit session => repository.find(countryId).map(toCountryStateResponse(_)) }
+  def find(countryId: ID, stateId: ID): Option[CountryStateResponse] =
+    DB readOnly { implicit session => repository.find(countryId,stateId).map(toCountryStateResponse(_)) }
 
   def findAll(code: String): List[CountryStateResponse] =
     DB readOnly { implicit session => repository.findAll(code).map(toCountryStateResponse(_)) }
 
+  private[this] def createEntity(countryId: ID, req: CountryStateRequest): CountryState = new CountryState(
+    name = req.name,
+    countryId = countryId
+  )
   private[this] def createEntity(req: CountryStateRequest): CountryState = new CountryState(
     name = req.name,
-    countryId = Some(req.country_id)
+    countryId = req.country_id
   )
 }
 
@@ -245,7 +249,7 @@ object CountryStateParser{
     CountryState(
       id = id,
       name = req.name,
-      countryId = Some(req.country_id)
+      countryId = req.country_id
     )
 
   def toCountryStateResponse(entity: CountryState) =
