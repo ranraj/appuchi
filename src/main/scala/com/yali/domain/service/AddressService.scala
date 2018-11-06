@@ -2,8 +2,7 @@ package com.yali.domain.service
 
 import cats.data.Validated.{Invalid, Valid}
 import cats.implicits._
-import com.yali.domain.model.AddressTypeEnum.AddressTypeEnum
-import com.yali.domain.model.{Address, AddressTypeEnum, ID}
+import com.yali.domain.model.{Address, AddressType, ID}
 import com.yali.domain.payload._
 import com.yali.domain.repository.AddressRepository
 import com.yali.domain.service.Validator._
@@ -59,8 +58,8 @@ class AddressService(implicit addressRepo: AddressRepository) {
 //    def find(countryId: ID): Option[AddressResponse] =
 //        DB readOnly { implicit session => countryRepo.find(countryId).map(toCountryResponse) }
 //
-//    def findAll(code: String): List[AddressResponse] =
-//        DB readOnly { implicit session => countryRepo.findAll(code).map(toCountryResponse) }
+    def findAll(): List[AddressResponse] =
+        DB readOnly { implicit session => addressRepo.findAll().map(toAddressResponse) }
 
     private[this] def createAddress(req: AddressRequest): Address = new Address(
         line1 = req.line1,
@@ -72,7 +71,7 @@ class AddressService(implicit addressRepo: AddressRepository) {
         latitude = req.latitude,
         longitude = req.longitude,
         zipCode = req.zipCode,
-        addressType = AddressTypeEnum.withName(req.addressType)
+        addressType = AddressType.fromValue(req.addressType)
     )
 
 }
@@ -89,7 +88,7 @@ object AddressParser{
             latitude = req.latitude,
             longitude = req.longitude,
             zipCode = req.zipCode,
-            addressType = AddressTypeEnum.withName(req.addressType)
+            addressType = AddressType.fromValue(req.addressType)
         )
     def toAddressResponse(entity: Address) =
         AddressResponse(

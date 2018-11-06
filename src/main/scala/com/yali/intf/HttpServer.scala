@@ -105,9 +105,7 @@ class HttpServer(implicit val system: ActorSystem,
               complete(countryStateService.delete(stateId))
             }
           } ~ pathEnd {
-//            get {
-//              //complete(countryStateService.findAllByCountry(countryId))
-//            } ~
+
             post {
               entity(as[CountryStateRequest]) { req => complete(countryStateService.create(req)) }
             }
@@ -116,7 +114,9 @@ class HttpServer(implicit val system: ActorSystem,
       }
     }  ~ pathPrefix("addresses") {
         pathEnd {
-          post {
+          get {
+            complete(addressService.findAll())
+          } ~ post {
             entity(as[AddressRequest]) { req => complete(addressService.create(req)) }
           }
         }

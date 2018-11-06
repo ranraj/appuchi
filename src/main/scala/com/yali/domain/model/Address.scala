@@ -2,18 +2,21 @@ package com.yali.domain.model
 
 import java.util.UUID
 
-import com.yali.domain.model.AddressTypeEnum.AddressTypeEnum
 import scalikejdbc._
 
-object AddressTypeEnum extends Enumeration {
-  type AddressTypeEnum = Value
-  val PERMANENT, PRESENT = Value
+sealed trait AddressType
+object AddressType {
+  case object PERMANENT extends AddressType
+  case object PRESENT extends AddressType
 
-  def getValue(addressType: AddressTypeEnum): String = addressType match {
+  def toValue(addressType: AddressType): String = addressType match {
     case PERMANENT => "Permanent"
     case PRESENT => "Present"
   }
-
+  def fromValue(value: String): AddressType = value match {
+    case "Permanent" => PERMANENT
+    case "Present" => PRESENT
+  }
 }
 
 case class Address(
@@ -27,7 +30,7 @@ case class Address(
                     latitude: Option[Double] = None,
                     longitude: Option[Double] = None,
                     zipCode: String,
-                    addressType: AddressTypeEnum) {
+                    addressType: AddressType) {
 }
 
 
@@ -54,8 +57,6 @@ object Address extends SQLSyntaxSupport[Address] {
     latitude = rs.get(a.latitude),
     longitude = rs.get(a.longitude),
     zipCode = rs.get(a.zipCode),
-    addressType = AddressTypeEnum.values.
-      find(_.toString == rs.string(a.addressType)).
-      getOrElse(AddressTypeEnum.PRESENT)
+    addressType = AddressType.fromValue(rs.string(a.addressType))
   )
 }

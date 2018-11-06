@@ -2,9 +2,7 @@ package com.yali.domain.repository
 
 import java.util.UUID
 
-import com.yali.domain.model.{Address, AddressTypeEnum, ID}
-import com.yali.domain.model.Address.column
-import com.yali.domain.model.AddressTypeEnum.AddressTypeEnum
+import com.yali.domain.model.{Address, AddressType}
 import scalikejdbc._
 
 class AddressRepository extends RepositoryHelper{
@@ -14,7 +12,7 @@ class AddressRepository extends RepositoryHelper{
     value => (stmt, idx) => stmt.setObject(idx, value)
   }
 
-  implicit lazy val addressTypeFactory = ParameterBinderFactory[AddressTypeEnum] {
+  implicit lazy val addressTypeFactory = ParameterBinderFactory[AddressType] {
     value => (stmt, idx) => stmt.setObject(idx, value)
   }
 
@@ -49,7 +47,7 @@ class AddressRepository extends RepositoryHelper{
       select(sqls.count).from(Address as a).where.append(where)
     }.map(_.long(1)).single.apply().get
   }
-  val addressType = "Permanent"
+
   def create(entity: Address)(implicit session: DBSession): Address = {
     sql"""insert into ${Address.table}
          |  (
@@ -74,73 +72,9 @@ class AddressRepository extends RepositoryHelper{
          |      ${entity.latitude},
          |      ${entity.longitude},
          |      ${entity.zipCode},
-         |      ${AddressTypeEnum.getValue(entity.addressType)}::address_type_enum
+         |      ${AddressType.toValue(entity.addressType)}::address_type_enum
          | )""".stripMargin.update.apply()
 
     mustExist(find(entity.id))
-  }
-
-  def batchInsert(entities: collection.Seq[Address])(implicit session: DBSession): List[Int] = {
-    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
-      Seq(
-        'id -> entity.id,
-        'line1 -> entity.line1,
-        'line2 -> entity.line2,
-        'landmark -> entity.landmark,
-        'countryId -> entity.countryId,
-        'stateId -> entity.stateId,
-        'livingPeriod -> entity.livingPeriod,
-        'latitude -> entity.latitude,
-        'longitude -> entity.longitude,
-        'zipCode -> entity.zipCode,
-        'addressType -> entity.addressType))
-    SQL("""insert into address(
-      id,
-      line1,
-      line2,
-      landmark,
-      country_id,
-      state_id,
-      living_period,
-      latitude,
-      longitude,
-      zip_code,
-      address_type
-    ) values (
-      {id},
-      {line1},
-      {line2},
-      {landmark},
-      {countryId},
-      {stateId},
-      {livingPeriod},
-      {latitude},
-      {longitude},
-      {zipCode},
-      {addressType}
-    )""").batchByName(params: _*).apply[List]()
-  }
-
-//  def save(entity: Address)(implicit session: DBSession): Address = {
-  ////    withSQL {
-  ////      update(Address).set(
-  ////        (column.id, ParameterBinder(entity.id, (ps, i) => ps.setObject(i, entity.id))),
-  ////        column.line1 -> entity.line1,
-  ////        column.line2 -> entity.line2,
-  ////        column.landmark -> entity.landmark,
-  ////        (column.countryId, ParameterBinder(entity.countryId, (ps, i) => ps.setObject(i, entity.countryId))),
-  ////        (column.stateId, ParameterBinder(entity.stateId, (ps, i) => ps.setObject(i, entity.stateId))),
-  ////        column.livingPeriod -> entity.livingPeriod,
-  ////        column.latitude -> entity.latitude,
-  ////        column.longitude -> entity.longitude,
-  ////        column.zipCode -> entity.zipCode,
-  ////        column.addressType -> entity.addressType
-  ////      ).where.eq(column.id, entity.id)
-  ////    }.update.apply()
-  ////    entity
-  ////  }
-
-  def destroy(entity: Address)(implicit session: DBSession): Int = {
-    withSQL { delete.from(Address).where.eq(column.id, entity.id) }.update.apply()
   }
 }
