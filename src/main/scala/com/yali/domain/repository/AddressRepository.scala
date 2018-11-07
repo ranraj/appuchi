@@ -2,7 +2,7 @@ package com.yali.domain.repository
 
 import java.util.UUID
 
-import com.yali.domain.model.{Address, AddressType}
+import com.yali.domain.model.{Address, AddressType, ID}
 import scalikejdbc._
 
 class AddressRepository extends RepositoryHelper{
@@ -55,6 +55,7 @@ class AddressRepository extends RepositoryHelper{
          |      line1,
          |      line2,
          |      landmark,
+         |      city,
          |      country_id,
          |      state_id,
          |      living_period,
@@ -66,6 +67,7 @@ class AddressRepository extends RepositoryHelper{
          |      ${entity.line1},
          |      ${entity.line2},
          |      ${entity.landmark},
+         |      ${entity.city},
          |      ${entity.countryId},
          |      ${entity.stateId},
          |      ${entity.livingPeriod},
@@ -77,4 +79,24 @@ class AddressRepository extends RepositoryHelper{
 
     mustExist(find(entity.id))
   }
+  def update(entity: Address)(implicit session: DBSession): Address = {
+    sql"""update  ${Address.table} set
+         |      line1 = ${entity.line1},
+         |      line2 = ${entity.line2},
+         |      landmark = ${entity.landmark},
+         |      city = ${entity.city},
+         |      country_id = ${entity.countryId},
+         |      state_id = ${entity.stateId},
+         |      living_period = ${entity.livingPeriod},
+         |      latitude = ${entity.latitude},
+         |      longitude = ${entity.longitude},
+         |      zip_code = ${entity.zipCode},
+         |      address_type = ${AddressType.toValue(entity.addressType)}::address_type_enum
+         |      where id = ${entity.id}
+         |  """.stripMargin.update.apply()
+
+    mustExist(find(entity.id))
+  }
+  def delete(id: ID)(implicit session: DBSession): Boolean =
+    sql"delete from ${Address.table} where id = $id".update().apply() > 0
 }

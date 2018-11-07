@@ -24,6 +24,7 @@ case class Address(
                     line1: String,
                     line2: Option[String] = None,
                     landmark: Option[String] = None,
+                    city: String,
                     countryId: ID,
                     stateId: Option[ID] = None,
                     livingPeriod: Option[Int] = None,
@@ -40,17 +41,13 @@ object Address extends SQLSyntaxSupport[Address] {
 
   override val tableName = "address"
 
-  override val columns = Seq("id", "line1", "line2", "landmark", "country_id", "state_id", "living_period", "latitude", "longitude", "zip_code", "address_type")
-
-  implicit lazy val uuidFactory = ParameterBinderFactory[UUID] {
-    value => (stmt, idx) => stmt.setObject(idx, value)
-  }
   def apply(a: SyntaxProvider[Address])(rs: WrappedResultSet): Address = apply(a.resultName)(rs)
   def apply(a: ResultName[Address])(rs: WrappedResultSet): Address = new Address(
     id = UUID.fromString(rs.string(a.id)),
     line1 = rs.get(a.line1),
     line2 = rs.get(a.line2),
     landmark = rs.get(a.landmark),
+    city = rs.string(a.city),
     countryId = UUID.fromString(rs.string(a.countryId)),
     stateId = rs.stringOpt(a.stateId).map(UUID.fromString(_)),
     livingPeriod = rs.get(a.livingPeriod),

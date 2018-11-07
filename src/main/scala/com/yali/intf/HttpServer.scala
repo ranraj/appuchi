@@ -113,7 +113,15 @@ class HttpServer(implicit val system: ActorSystem,
         }
       }
     }  ~ pathPrefix("addresses") {
-        pathEnd {
+      path(JavaUUID) { addressId =>
+        get {
+          complete(addressService.find(addressId))
+        } ~ put {
+          entity(as[AddressRequest]) { req => complete(addressService.update(addressId,req)) }
+        } ~ delete {
+          complete(addressService.delete(addressId))
+        }
+      } ~ pathEnd {
           get {
             complete(addressService.findAll())
           } ~ post {

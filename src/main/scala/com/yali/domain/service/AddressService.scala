@@ -23,6 +23,7 @@ class AddressService(implicit addressRepo: AddressRepository) {
         (validateLine1(("lin1", req.line1)),
           success(req.line2),
           noneValidation(req.landmark),
+          notNull(("city", req.city)),
           notNull(("country", req.countryId)),
           notNull(("state", req.stateId)),
           notNull(("living period", req.livingPeriod)),
@@ -42,22 +43,22 @@ class AddressService(implicit addressRepo: AddressRepository) {
             case Invalid(errors) => throw new ValidationFailedException(errors.toList)
         }
     }
-//
-//    def update(id: ID, request: AddressRequest): CountryResponse = DB localTx {
-//        implicit session =>  validateRequest(request) match {
-//            case Valid(value) =>
-//                toCountryResponse(countryRepo.update(toCountry(id,value)))
-//            case Invalid(errors) => throw new ValidationFailedException(errors.toList)
-//        }
-//    }
-//
-//    def delete(id: ID): Boolean = DB localTx {
-//        implicit session => countryRepo.delete(id)
-//    }
-//
-//    def find(countryId: ID): Option[AddressResponse] =
-//        DB readOnly { implicit session => countryRepo.find(countryId).map(toCountryResponse) }
-//
+
+    def update(id: ID, request: AddressRequest): AddressResponse = DB localTx {
+        implicit session =>  validateRequest(request) match {
+            case Valid(value) =>
+                toAddressResponse(addressRepo.update(toAddress(id,value)))
+            case Invalid(errors) => throw new ValidationFailedException(errors.toList)
+        }
+    }
+
+    def delete(id: ID): Boolean = DB localTx {
+        implicit session => addressRepo.delete(id)
+    }
+
+    def find(addressId: ID): Option[AddressResponse] =
+        DB readOnly { implicit session => addressRepo.find(addressId).map(toAddressResponse) }
+
     def findAll(): List[AddressResponse] =
         DB readOnly { implicit session => addressRepo.findAll().map(toAddressResponse) }
 
@@ -65,6 +66,7 @@ class AddressService(implicit addressRepo: AddressRepository) {
         line1 = req.line1,
         line2 = req.line2,
         landmark = req.landmark,
+        city = req.city,
         countryId = req.countryId,
         stateId = req.stateId,
         livingPeriod = req.livingPeriod,
@@ -79,9 +81,11 @@ class AddressService(implicit addressRepo: AddressRepository) {
 object AddressParser{
     def toAddress(id: ID, req: AddressRequest) =
         Address(
+            id = id,
             line1 = req.line1,
             line2 = req.line2,
             landmark = req.landmark,
+            city = req.city,
             stateId = req.stateId,
             countryId = req.countryId,
             livingPeriod = req.livingPeriod,
@@ -95,6 +99,7 @@ object AddressParser{
             id = entity.id,
             line1 = entity.line1,
             line2 = entity.line2,
+            city = entity.city,
             landmark = entity.landmark,
             stateId = entity.stateId,
             countryId = entity.countryId,

@@ -3,7 +3,6 @@ package com.yali.domain.payload
 import java.time.OffsetDateTime
 import java.util.UUID
 
-import com.yali.domain.model.AddressTypeEnum.AddressTypeEnum
 import com.yali.domain.model.ID
 
 final case class ErrorResponse(statusCode: Int,
@@ -78,6 +77,7 @@ final case class AddressRequest(
                                  line1: String,
                                  line2: Option[String] = None,
                                  landmark: Option[String] = None,
+                                 city: String,
                                  countryId: ID,
                                  stateId: Option[ID] = None,
                                  livingPeriod: Option[Int] = None,
@@ -91,6 +91,7 @@ final case class AddressResponse(
                                  line1: String,
                                  line2: Option[String],
                                  landmark: Option[String],
+                                 city: String,
                                  countryId: ID,
                                  country: Option[CountryResponse] = None,
                                  stateId: Option[ID],

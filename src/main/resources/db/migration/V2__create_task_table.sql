@@ -50,6 +50,7 @@ CREATE TABLE address (
   line1 VARCHAR(200) NOT NULL,
   line2 VARCHAR(200) NULL,
   landmark VARCHAR(200) NULL,
+  city VARCHAR(200) NOT NULL,
   country_id UUID NOT NULL,
   state_id UUID NULL,
   living_period INT NULL,
