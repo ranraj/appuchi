@@ -104,6 +104,12 @@ class CountryStateRepository extends RepositoryHelper {
              on ${countryState.countryId} = ${country.id} where ${countryState.id} = $stateId and ${country.id} = ${countryId}"""
       .map(CountryState(countryState.resultName, country.resultName)).single.apply()
 
+  def find(countryId: ID)(implicit session: DBSession): List[CountryState] =
+    sql"""select ${countryState.result.*},${country.result.*} from ${CountryState.as(countryState)} left join ${Country.as(country)}
+             on ${countryState.countryId} = ${country.id} where ${country.id} = ${countryId}"""
+      .map(CountryState(countryState.resultName, country.resultName)).list.apply()
+
+
   def create(entity: CountryState)(implicit session: DBSession): CountryState = {
     sql"""insert into ${CountryState.table} (id, name, country_id) values (
                     ${entity.id},

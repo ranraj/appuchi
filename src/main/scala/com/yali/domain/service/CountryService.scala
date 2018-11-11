@@ -229,6 +229,10 @@ class CountryStateService(implicit repository: CountryStateRepository) {
   def find(countryId: ID, stateId: ID): Option[CountryStateResponse] =
     DB readOnly { implicit session => repository.find(countryId,stateId).map(toCountryStateResponse(_)) }
 
+  def find(countryId: ID) : List[CountryStateResponse] = {
+    DB readOnly { implicit session => repository.find(countryId).map(toCountryStateResponse(_)) }
+  }
+
   def findAll(code: String): List[CountryStateResponse] =
     DB readOnly { implicit session => repository.findAll(code).map(toCountryStateResponse(_)) }
 
