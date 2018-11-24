@@ -6,7 +6,6 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives.{as, complete, entity, extractUri, get, path, post, _}
-import akka.http.scaladsl.server.directives.Credentials
 import akka.http.scaladsl.server.{ExceptionHandler, Route}
 import akka.stream.ActorMaterializer
 import com.yali.domain._
@@ -25,6 +24,7 @@ class HttpServer(implicit val system: ActorSystem,
                  implicit val languageService: LanguageService,
                  implicit val countryStateService: CountryStateService,
                  implicit val addressService: AddressService,
+                 implicit val businessTypeService: BusinessTypeService,
                  implicit val jwtToken: JwtToken){
 
   val log = Logging(system, this.getClass.getName)
@@ -66,16 +66,6 @@ class HttpServer(implicit val system: ActorSystem,
           complete(HttpResponse(StatusCodes.InternalServerError, entity = response))
       }
   }
-
-  def myUserPassAuthenticator(credentials: Credentials): Option[String] =
-    credentials match {
-      case p@Credentials.Provided(id) => {
-        val result = jwtToken.find(id)
-        println(result)
-        Some(id)
-      }
-      case _ => None
-    }
 
   def start()(implicit materializer: ActorMaterializer): Future[ServerBinding] =
     Http().bindAndHandle(new ResourceRegistry().route, "localhost", 8080)

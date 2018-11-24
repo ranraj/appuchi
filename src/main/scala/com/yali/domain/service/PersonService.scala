@@ -1,7 +1,7 @@
 package com.yali.domain.service
 
 import cats.data.Validated.{Invalid, Valid}
-import cats.implicits._
+import cats.syntax.apply._
 import Validator.{FieldValue, ValidationResult, maxLength, notNull}
 import com.yali.domain.model.Person
 import com.yali.domain.payload.{LoginRequest, LoginResponse, RegistrationRequest, RegistrationResponse}

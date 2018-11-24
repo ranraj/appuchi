@@ -8,14 +8,6 @@ import scalikejdbc._
 class AddressRepository extends RepositoryHelper{
   val a = Address.syntax("a")
 
-  implicit lazy val uuidFactory = ParameterBinderFactory[UUID] {
-    value => (stmt, idx) => stmt.setObject(idx, value)
-  }
-
-  implicit lazy val addressTypeFactory = ParameterBinderFactory[AddressType] {
-    value => (stmt, idx) => stmt.setObject(idx, value)
-  }
-
   def find(id: UUID)(implicit session: DBSession): Option[Address] = {
     withSQL {
       select.from(Address as a).where.eq(a.id, id)

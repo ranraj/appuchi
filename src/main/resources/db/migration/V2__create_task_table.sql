@@ -69,3 +69,17 @@ CREATE TABLE address (
     REFERENCES app_country_state (id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
+
+CREATE TABLE business_type (
+  id UUID NOT NULL,
+  name VARCHAR(45) NULL,
+  description VARCHAR(45) NULL,
+  parent_id UUID NULL,
+  display_name VARCHAR(45) NULL,
+  PRIMARY KEY (id),
+  UNIQUE(name),
+  CONSTRAINT business_type_self_ref
+    FOREIGN KEY (parent_id)
+    REFERENCES business_type (id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);

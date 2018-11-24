@@ -102,3 +102,17 @@ final case class AddressResponse(
                                  zipCode: String,
                                  addressType: String
                                )
+
+final case class BusinessTypeRequest(
+                         name: String,
+                         description: String,
+                         parentId: Option[ID] = None,
+                         displayName: String)
+
+final case class BusinessTypeResponse(
+                                      id: ID = UUID.randomUUID(),
+                                      name: String,
+                                      description: String,
+                                      parentId: Option[ID] = None,
+                                      parent: Option[BusinessTypeResponse] = None,
+                                      displayName: String)

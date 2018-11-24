@@ -30,6 +30,7 @@ object Boot extends App with StrictLogging {
     lazy implicit val languageService = new LanguageService()
     lazy implicit val countryStateService = new CountryStateService()
     lazy implicit val addressService = new AddressService()
+    lazy implicit val businessTypeService = new BusinessTypeService()
 
     val config = ConfigFactory.load()
     val dbConfig = config.getConfig("database")

@@ -14,6 +14,7 @@ class ResourceRegistry(implicit val personService: PersonService,
                        implicit val addressService: AddressService,
                        implicit val countryStateService: CountryStateService,
                        implicit val countryService: CountryService,
+                      implicit val businessTypeService: BusinessTypeService,
                        implicit val jwtToken: JwtToken) extends TimeInstances {
 
 
@@ -104,6 +105,25 @@ class ResourceRegistry(implicit val personService: PersonService,
     }
   }
 
+  val businessTypeRoute = pathPrefix(JavaUUID / "business-type") { countryId =>
+    get {
+      complete(businessTypeService.find(countryId))
+    }
+//    ~ put {
+//      entity(as[CountryStateRequest]) { req => complete(countryStateService.update(stateId, req)) }
+//    } ~ delete {
+//      complete(countryStateService.delete(stateId))
+//    } ~
+      pathEnd {
+//      get {
+//        complete(countryStateService.find(countryId))
+//      } ~
+      post {
+        entity(as[BusinessTypeRequest]) { req => complete(businessTypeService.create(req)) }
+      }
+    }
+  }
+
   val countriesRoute = pathPrefix("countries") {
     path(JavaUUID) { countryId =>
       get {
@@ -123,7 +143,7 @@ class ResourceRegistry(implicit val personService: PersonService,
   }
 
   val adminRoutes = pathPrefix("admin") {
-    countriesRoute
+    countriesRoute ~ businessTypeRoute
   }
 
   val route =
