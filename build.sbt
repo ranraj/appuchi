@@ -1,6 +1,11 @@
+name := "appuchi"
+organization := "yali.com"
+version := "0.1.0-SNAPSHOT"
+
+assemblyJarName in assembly := "appuchi-server.jar"
+
 lazy val akkaHttpVersion = "10.1.0"
 lazy val akkaVersion = "2.5.11"
-
 
 scalacOptions += "-Ypartial-unification"
 

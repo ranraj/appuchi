@@ -8,7 +8,7 @@ ENV PORT=8080
 
 WORKDIR /var/app
 
-COPY ./target/scala-2.12/server-assembly-0.1.0-SNAPSHOT.jar /var/app
+COPY ./target/scala-2.12/appuchi-server.jar /var/app
 COPY ./run.sh /var/app
 
 EXPOSE $PORT

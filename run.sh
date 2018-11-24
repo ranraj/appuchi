@@ -1,1 +1,1 @@
-java -jar server-assembly-0.1.0-SNAPSHOT.jar
+java -jar appuchi-server.jar
